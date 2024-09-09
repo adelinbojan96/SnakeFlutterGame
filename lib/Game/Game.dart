@@ -20,6 +20,8 @@ class _GameScreenState extends State<GameScreen> {
   Timer? timer;
   int speed = 1;
   late Offset foodPosition;
+  var lowerBoundX, lowerBoundY, upperBoundX, upperBoundY;
+  int score = 0;
 
   @override
   void initState() {
@@ -32,14 +34,27 @@ class _GameScreenState extends State<GameScreen> {
 
     step = 20;
     length = 1;
-    positions = [Offset(80, 100)];
+    positions = [const Offset(80, 100)];
     foodPosition = generateRandomFoodPosition();
     changeSpeed();
+
+    lowerBoundX = 0.0;
+    lowerBoundY = 0.0;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final screenSize = MediaQuery
+          .of(context)
+          .size;
+
+      upperBoundX = (screenSize.height).toDouble();
+      upperBoundY = (screenSize.width - 50).toDouble();
+
+      setState(() {});
+    });
   }
 
   @override
   void dispose() {
-
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
@@ -62,18 +77,29 @@ class _GameScreenState extends State<GameScreen> {
 
 
   void restart() {
-
-    length = 3;
-    positions = [Offset(100, 100)];
-    direction = Direction.right;
-    foodPosition = generateRandomFoodPosition();
+    score = 0;
+    length = 1;
+    positions = [const Offset(80, 100)];
+    direction = getRandomDirection();
+    speed = 1;
 
     changeSpeed();
   }
 
+  Widget getScore() {
+    return Positioned(
+      top: 50.0,
+      right: 40.0,
+      child: Text(
+        "Score: $score",
+        style: const TextStyle(fontSize: 24.0, color: Colors.black),
+      ),
+    );
+  }
+
   void draw() async {
     if (positions.isEmpty) {
-      positions.add(Offset(100, 100));
+      positions.add(const Offset(80, 100));
     }
 
     while (length > positions.length) {
@@ -86,13 +112,13 @@ class _GameScreenState extends State<GameScreen> {
 
     positions[0] = await getNextPosition(positions[0]);
 
-    //check if the snake's head touches the food
     if (positions[0] == foodPosition) {
       length++;
-      foodPosition = generateRandomFoodPosition();  //generate new food after eating
+      score++;
+      foodPosition = generateRandomFoodPosition(); //generate new food
     }
 
-    setState(() {});  // for update purpose
+    setState(() {}); //for update purposes
   }
 
   Future<Offset> getNextPosition(Offset position) async {
@@ -107,15 +133,21 @@ class _GameScreenState extends State<GameScreen> {
     } else if (direction == Direction.down) {
       nextPosition = Offset(position.dx, position.dy + step);
     }
-
+    if (detectCollision(nextPosition) == true) {
+      if (timer != null && timer!.isActive) timer?.cancel();
+      await Future.delayed(
+          const Duration(milliseconds: 500), () => showGameOverDialog());
+      return position;
+    }
     return nextPosition;
   }
+
 
   Offset generateRandomFoodPosition() {
     final random = Random();
     return Offset(
-      random.nextInt(400 ~/ step) * step.toDouble(),
-      random.nextInt(300 ~/ step) * step.toDouble(),
+      random.nextInt(300 ~/ step) * step.toDouble() + step * 2,
+      random.nextInt(200 ~/ step) * step.toDouble() + step * 2,
     );
   }
 
@@ -124,32 +156,83 @@ class _GameScreenState extends State<GameScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          //game area
+          // game area
           Container(
             color: Colors.lightGreenAccent,
             child: Stack(
               children: [
+                // snake and food
                 ...Piece.getPieces(positions, step, length),
-                //food
                 Piece(
-                  posX: foodPosition.dx.toInt(),
-                  posY: foodPosition.dy.toInt(),
+                  posX: foodPosition.dx.toDouble(),
+                  posY: foodPosition.dy.toDouble(),
                   size: step,
-                  color: Colors.red,  // Food color
+                  color: Colors.red,
                 ).toWidget(),
+                ...getBridges(),
               ],
             ),
           ),
-          //
           Align(
             alignment: Alignment.topCenter,
             child: getControls(),
           ),
+          getScore(),
         ],
       ),
     );
   }
 
+
+//generate bridges around the margins of the screen using bounds
+  List<Widget> getBridges() {
+    final bridges = <Widget>[];
+
+    for (double x = lowerBoundX; x <= upperBoundX; x += step) {
+      bridges.add(
+        Piece(
+          posX: x,
+          posY: lowerBoundY,
+          size: step,
+          color: Colors.brown,
+        ).toWidget(),
+      );
+
+      bridges.add(
+        Piece(
+          posX: x,
+          posY: upperBoundY,
+          size: step,
+          color: Colors.brown,
+        ).toWidget(),
+      );
+    }
+
+
+    for (double y = lowerBoundY; y <= upperBoundY;
+    y += step) {
+
+      bridges.add(
+        Piece(
+          posX: lowerBoundX,
+          posY: y,
+          size: step,
+          color: Colors.brown,
+        ).toWidget(),
+      );
+
+      bridges.add(
+        Piece(
+          posX: upperBoundX,
+          posY: y,
+          size: step,
+          color: Colors.brown,
+        ).toWidget(),
+      );
+    }
+
+    return bridges;
+  }
 
   Widget getControls() {
     return ControlPanel(
@@ -165,12 +248,51 @@ class _GameScreenState extends State<GameScreen> {
       },
     );
   }
-}
 
+  bool detectCollision(Offset position) {
+    if (position.dx >= upperBoundX && direction == Direction.right) {
+      return true;
+    } else if (position.dx <= lowerBoundX && direction == Direction.left) {
+      return true;
+    } else if (position.dy >= upperBoundY && direction == Direction.down) {
+      return true;
+    } else if (position.dy <= lowerBoundY && direction == Direction.up) {
+      return true;
+    }
+
+    return false;
+  }
+
+  void showGameOverDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Game Over"),
+          content: Text("Your score: $score"),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                restart();
+              },
+              child: const Text("Restart"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Direction getRandomDirection() {
+    const directions = Direction.values;
+    return directions[Random().nextInt(directions.length)];
+  }
+}
 class Piece {
-  final int posX;
-  final int posY;
-  final int size;
+  final double posX;
+  final double posY;
+  final size;
   final Color color;
 
   Piece({
@@ -207,8 +329,8 @@ class Piece {
 
       pieces.add(
         Piece(
-          posX: positions[i].dx.toInt(),
-          posY: positions[i].dy.toInt(),
+          posX: positions[i].dx.toDouble(),
+          posY: positions[i].dy.toDouble(),
           size: step,
           color: Colors.green, //snake color
         ).toWidget(),

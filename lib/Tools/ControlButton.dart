@@ -9,13 +9,13 @@ class ControlButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Opacity(
-      opacity: 0.6,  // Make it semi-transparent
+      opacity: 0.6,
       child: Container(
-        width: 60.0,  // Smaller width to make the buttons look compact
-        height: 60.0,  // Smaller height to make the buttons look compact
+        width: 60.0,
+        height: 60.0,
         child: FittedBox(
           child: FloatingActionButton(
-            backgroundColor: Colors.grey.withOpacity(0.3),  // Light transparent background
+            backgroundColor: Colors.grey.withOpacity(0.3),
             elevation: 0.0,
             child: this.icon,
             onPressed: this.onPressed,
