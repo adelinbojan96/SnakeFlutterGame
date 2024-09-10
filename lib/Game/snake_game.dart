@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:async';
 import 'dart:math';
-import '../Tools/Direction.dart';
-import '../Tools/ControlPanel.dart';
+import '../Menu/main_menu.dart';
+import '../Tools/direction.dart';
+import '../Tools/control_panel.dart';
 
 class GameScreen extends StatefulWidget {
   const GameScreen({super.key});
@@ -146,8 +147,8 @@ class _GameScreenState extends State<GameScreen> {
   Offset generateRandomFoodPosition() {
     final random = Random();
     return Offset(
+      random.nextInt(700 ~/ step) * step.toDouble() + step * 2,
       random.nextInt(300 ~/ step) * step.toDouble() + step * 2,
-      random.nextInt(200 ~/ step) * step.toDouble() + step * 2,
     );
   }
 
@@ -277,6 +278,18 @@ class _GameScreenState extends State<GameScreen> {
                 restart();
               },
               child: const Text("Restart"),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const MainMenu(),
+                  ),
+                );
+              },
+              child: const Text("Back to Menu"),
             ),
           ],
         );

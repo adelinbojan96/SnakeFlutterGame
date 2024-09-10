@@ -1,7 +1,38 @@
 import 'package:flutter/material.dart';
-import '../Game/Game.dart';
+import 'package:flutter/services.dart';
+import '../Game/snake_game.dart';
+import 'Options.dart';
 
-class MainMenu extends StatelessWidget {
+class MainMenu extends StatefulWidget {
+  const MainMenu({super.key});
+
+  @override
+  _MainMenuState createState() => _MainMenuState();
+}
+
+class _MainMenuState extends State<MainMenu> {
+
+  @override
+  void initState() {
+    super.initState();
+    // Lock the orientation to portrait mode
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+  }
+
+  @override
+  void dispose() {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeRight,
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -31,9 +62,6 @@ class MainMenu extends StatelessWidget {
                       builder: (context) {
                         return ElevatedButton(
                           onPressed: () {
-
-                            print('Play button pressed');
-
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -71,7 +99,12 @@ class MainMenu extends StatelessWidget {
                     width: 280,
                     child: ElevatedButton(
                       onPressed: () {
-                        print('Settings button pressed');
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const Options(),
+                          ),
+                        );
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.black,
@@ -101,7 +134,7 @@ class MainMenu extends StatelessWidget {
                     width: 280,
                     child: ElevatedButton(
                       onPressed: () {
-                        print('Exit button pressed');
+                        SystemNavigator.pop();
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.black,

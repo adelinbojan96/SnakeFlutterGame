@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'ControlButton.dart';
-import 'Direction.dart';
+import 'control_button.dart';
+import 'direction.dart';
 
 class ControlPanel extends StatelessWidget {
   final void Function(Direction direction) onTapped;
