@@ -1,15 +1,11 @@
 import 'package:flutter/material.dart';
-
+import '../Tools/game_settings.dart';
 class Options extends StatefulWidget {
   const Options({super.key});
 
   @override
   _OptionsState createState() => _OptionsState();
 }
-
-double snakeSpeed = 1.01;
-Color snakeColor = Colors.green[800]!;
-Color foodColor = Colors.red;
 
 class _OptionsState extends State<Options> {
   final List<Color> snakeColors = [
@@ -47,21 +43,21 @@ class _OptionsState extends State<Options> {
               style: TextStyle(fontSize: 20),
             ),
             Slider(
-              value: snakeSpeed,
+              value: GameSettings.snakeSpeed,
               min: 1.01,
               max: 2.0,
               divisions: 99,
-              label: '${(((snakeSpeed - 1) * 100).round())}%',
+              label: '${(((GameSettings.snakeSpeed - 1) * 100).round())}%',
               activeColor: Colors.green[800],
               inactiveColor: Colors.green[200],
               onChanged: (double value) {
                 setState(() {
-                  snakeSpeed = value;
+                  GameSettings.snakeSpeed = value;
                 });
               },
             ),
             Text(
-              'Snake speed: ${((snakeSpeed - 1) * 100).toStringAsFixed(0)}%',
+              'Snake speed: ${((GameSettings.snakeSpeed - 1) * 100).toStringAsFixed(0)}%',
               style: const TextStyle(fontSize: 18),
             ),
 
@@ -80,7 +76,7 @@ class _OptionsState extends State<Options> {
                   onTap: () {
                     setState(() {
                       selectedColorIndex = index;
-                      snakeColor = snakeColors[selectedColorIndex];
+                      GameSettings.snakeColor = snakeColors[selectedColorIndex];
                     });
                   },
                   child: Container(
@@ -114,7 +110,7 @@ class _OptionsState extends State<Options> {
                   onTap: () {
                     setState(() {
                       selectedFoodColorIndex = index;
-                      foodColor = foodColors[selectedFoodColorIndex];
+                      GameSettings.foodColor = foodColors[selectedFoodColorIndex];
                     });
                   },
                   child: Container(

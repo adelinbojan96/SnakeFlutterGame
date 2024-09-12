@@ -2,12 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:async';
 import 'dart:math';
+
 import '../Menu/main_menu.dart';
-import '../Tools/direction.dart';
 import '../Tools/control_panel.dart';
-import '../Menu/options.dart';
+import '../Tools/direction.dart';
+
 class GameScreen extends StatefulWidget {
-  const GameScreen({super.key});
+  final double snakeSpeed;
+  final Color snakeColor;
+  final Color foodColor;
+
+  const GameScreen({
+    super.key,
+    required this.snakeSpeed,
+    required this.snakeColor,
+    required this.foodColor,
+  });
 
   @override
   _GameScreenState createState() => _GameScreenState();
@@ -42,9 +52,7 @@ class _GameScreenState extends State<GameScreen> {
     lowerBoundY = 0.0;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final screenSize = MediaQuery
-          .of(context)
-          .size;
+      final screenSize = MediaQuery.of(context).size;
 
       upperBoundX = (screenSize.height).toDouble();
       upperBoundY = (screenSize.width - 50).toDouble();
@@ -64,24 +72,21 @@ class _GameScreenState extends State<GameScreen> {
     super.dispose();
   }
 
-
   void changeSpeed() {
-    //cancel previous timer if it's running
     if (timer != null && timer!.isActive) timer!.cancel();
-
-    //restart the timer with the new speed
-    timer = Timer.periodic(Duration(milliseconds: 200 ~/ snakeSpeed), (timer) {
-      draw();
-    });
+    timer = Timer.periodic(
+      Duration(milliseconds: 200 ~/ widget.snakeSpeed),
+          (timer) {
+        draw();
+      },
+    );
   }
-
 
   void restart() {
     score = 0;
     length = 1;
     positions = [const Offset(80, 100)];
     direction = getRandomDirection();
-    snakeSpeed = 1;
 
     changeSpeed();
   }
@@ -115,10 +120,10 @@ class _GameScreenState extends State<GameScreen> {
     if (positions[0] == foodPosition) {
       length++;
       score++;
-      foodPosition = generateRandomFoodPosition(); //generate new food
+      foodPosition = generateRandomFoodPosition(); // generate new food
     }
 
-    setState(() {}); //for update purposes
+    setState(() {}); // for update purposes
   }
 
   Future<Offset> getNextPosition(Offset position) async {
@@ -142,7 +147,6 @@ class _GameScreenState extends State<GameScreen> {
     return nextPosition;
   }
 
-
   Offset generateRandomFoodPosition() {
     final random = Random();
     return Offset(
@@ -162,12 +166,12 @@ class _GameScreenState extends State<GameScreen> {
             child: Stack(
               children: [
                 // snake and food
-                ...Piece.getPieces(positions, step, length),
+                ...Piece.getPieces(positions, step, length, widget.snakeColor),
                 Piece(
                   posX: foodPosition.dx.toDouble(),
                   posY: foodPosition.dy.toDouble(),
                   size: step,
-                  color: Colors.red,
+                  color: widget.foodColor,
                 ).toWidget(),
                 ...getWall(),
               ],
@@ -183,8 +187,6 @@ class _GameScreenState extends State<GameScreen> {
     );
   }
 
-
-//generate wall around the margins of the screen using bounds
   List<Widget> getWall() {
     final wall = <Widget>[];
 
@@ -208,10 +210,7 @@ class _GameScreenState extends State<GameScreen> {
       );
     }
 
-
-    for (double y = lowerBoundY; y <= upperBoundY;
-    y += step) {
-
+    for (double y = lowerBoundY; y <= upperBoundY; y += step) {
       wall.add(
         Piece(
           posX: lowerBoundX,
@@ -301,6 +300,7 @@ class _GameScreenState extends State<GameScreen> {
     return directions[Random().nextInt(directions.length)];
   }
 }
+
 class Piece {
   final double posX;
   final double posY;
@@ -314,7 +314,6 @@ class Piece {
     required this.color,
   });
 
-  //converting Piece into a Positioned widget
   Widget toWidget() {
     return Positioned(
       left: posX.toDouble(),
@@ -330,8 +329,8 @@ class Piece {
     );
   }
 
-  //method to return a list of widgets (snake and food)
-  static List<Widget> getPieces(List<Offset> positions, int step, int length) {
+  static List<Widget> getPieces(
+      List<Offset> positions, int step, int length, Color snakeColor) {
     final pieces = <Widget>[];
 
     for (var i = 0; i < length; i++) {
@@ -344,7 +343,7 @@ class Piece {
           posX: positions[i].dx.toDouble(),
           posY: positions[i].dy.toDouble(),
           size: step,
-          color: Colors.green, //snake color
+          color: snakeColor,
         ).toWidget(),
       );
     }

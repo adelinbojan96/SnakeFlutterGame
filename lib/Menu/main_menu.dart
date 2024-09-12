@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../Game/snake_game.dart';
-import 'Options.dart';
-
+import 'options.dart';
+import '../Tools/game_settings.dart';  
 class MainMenu extends StatefulWidget {
   const MainMenu({super.key});
 
@@ -11,11 +11,9 @@ class MainMenu extends StatefulWidget {
 }
 
 class _MainMenuState extends State<MainMenu> {
-
   @override
   void initState() {
     super.initState();
-    // Lock the orientation to portrait mode
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
@@ -65,7 +63,11 @@ class _MainMenuState extends State<MainMenu> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const GameScreen(),
+                                builder: (context) => GameScreen(
+                                  snakeSpeed: GameSettings.snakeSpeed,
+                                  snakeColor: GameSettings.snakeColor,
+                                  foodColor: GameSettings.foodColor,
+                                ),
                               ),
                             );
                           },
