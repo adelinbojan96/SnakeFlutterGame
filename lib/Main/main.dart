@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../Menu/main_menu.dart'; // Make sure this path is correct
+import '../Menu/main_menu.dart';
 
 void main() {
   runApp(const SnakeApp());

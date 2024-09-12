@@ -5,7 +5,7 @@ import 'dart:math';
 import '../Menu/main_menu.dart';
 import '../Tools/direction.dart';
 import '../Tools/control_panel.dart';
-
+import '../Menu/options.dart';
 class GameScreen extends StatefulWidget {
   const GameScreen({super.key});
 
@@ -19,7 +19,6 @@ class _GameScreenState extends State<GameScreen> {
   late int step;
   Direction direction = Direction.right;
   Timer? timer;
-  int speed = 1;
   late Offset foodPosition;
   var lowerBoundX, lowerBoundY, upperBoundX, upperBoundY;
   int score = 0;
@@ -71,7 +70,7 @@ class _GameScreenState extends State<GameScreen> {
     if (timer != null && timer!.isActive) timer!.cancel();
 
     //restart the timer with the new speed
-    timer = Timer.periodic(Duration(milliseconds: 200 ~/ speed), (timer) {
+    timer = Timer.periodic(Duration(milliseconds: 200 ~/ snakeSpeed), (timer) {
       draw();
     });
   }
@@ -82,7 +81,7 @@ class _GameScreenState extends State<GameScreen> {
     length = 1;
     positions = [const Offset(80, 100)];
     direction = getRandomDirection();
-    speed = 1;
+    snakeSpeed = 1;
 
     changeSpeed();
   }
@@ -170,7 +169,7 @@ class _GameScreenState extends State<GameScreen> {
                   size: step,
                   color: Colors.red,
                 ).toWidget(),
-                ...getBridges(),
+                ...getWall(),
               ],
             ),
           ),
@@ -185,12 +184,12 @@ class _GameScreenState extends State<GameScreen> {
   }
 
 
-//generate bridges around the margins of the screen using bounds
-  List<Widget> getBridges() {
-    final bridges = <Widget>[];
+//generate wall around the margins of the screen using bounds
+  List<Widget> getWall() {
+    final wall = <Widget>[];
 
     for (double x = lowerBoundX; x <= upperBoundX; x += step) {
-      bridges.add(
+      wall.add(
         Piece(
           posX: x,
           posY: lowerBoundY,
@@ -199,7 +198,7 @@ class _GameScreenState extends State<GameScreen> {
         ).toWidget(),
       );
 
-      bridges.add(
+      wall.add(
         Piece(
           posX: x,
           posY: upperBoundY,
@@ -213,7 +212,7 @@ class _GameScreenState extends State<GameScreen> {
     for (double y = lowerBoundY; y <= upperBoundY;
     y += step) {
 
-      bridges.add(
+      wall.add(
         Piece(
           posX: lowerBoundX,
           posY: y,
@@ -222,7 +221,7 @@ class _GameScreenState extends State<GameScreen> {
         ).toWidget(),
       );
 
-      bridges.add(
+      wall.add(
         Piece(
           posX: upperBoundX,
           posY: y,
@@ -232,7 +231,7 @@ class _GameScreenState extends State<GameScreen> {
       );
     }
 
-    return bridges;
+    return wall;
   }
 
   Widget getControls() {
