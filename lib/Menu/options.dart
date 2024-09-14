@@ -12,13 +12,13 @@ class _OptionsState extends State<Options> {
     Colors.green[800]!,
     Colors.yellow[300]!,
     Colors.orange,
-    Colors.black,
+    Colors.pink,
     Colors.purple,
   ];
 
   final List<Color> foodColors = [
     Colors.red,
-    Colors.yellow[700]!, // Dark Yellow
+    Colors.yellow[700]!,
     Colors.grey,
   ];
 

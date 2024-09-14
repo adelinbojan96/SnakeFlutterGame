@@ -32,6 +32,7 @@ class _GameScreenState extends State<GameScreen> {
   late Offset foodPosition;
   var lowerBoundX, lowerBoundY, upperBoundX, upperBoundY;
   int score = 0;
+  int highScore = 0;
 
   @override
   void initState() {
@@ -83,6 +84,10 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   void restart() {
+    if (score > highScore) {
+      highScore = score;
+    }
+
     score = 0;
     length = 1;
     positions = [const Offset(80, 100)];
@@ -95,13 +100,22 @@ class _GameScreenState extends State<GameScreen> {
     return Positioned(
       top: 50.0,
       right: 40.0,
-      child: Text(
-        "Score: $score",
-        style: const TextStyle(fontSize: 24.0, color: Colors.black),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Text(
+            "Score: $score",
+            style: const TextStyle(fontSize: 24.0, color: Colors.black),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            "Highscore: $highScore",
+            style: const TextStyle(fontSize: 20.0, color: Colors.black),
+          ),
+        ],
       ),
     );
   }
-
   void draw() async {
     if (positions.isEmpty) {
       positions.add(const Offset(80, 100));
@@ -289,6 +303,7 @@ class _GameScreenState extends State<GameScreen> {
               },
               child: const Text("Back to Menu"),
             ),
+
           ],
         );
       },
