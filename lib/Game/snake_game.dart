@@ -6,23 +6,26 @@ import 'dart:math';
 import '../Menu/main_menu.dart';
 import '../Tools/control_panel.dart';
 import '../Tools/direction.dart';
+import '../Tools/game_mode.dart';
+import 'snake_piece.dart';
 
 class GameScreen extends StatefulWidget {
   final double snakeSpeed;
   final Color snakeColor;
   final Color foodColor;
+  final GameMode gameMode;
 
   const GameScreen({
     super.key,
     required this.snakeSpeed,
     required this.snakeColor,
     required this.foodColor,
+    required this.gameMode,
   });
 
   @override
   _GameScreenState createState() => _GameScreenState();
 }
-
 class _GameScreenState extends State<GameScreen> {
   late List<Offset> positions;
   late int length;
@@ -46,7 +49,7 @@ class _GameScreenState extends State<GameScreen> {
     step = 20;
     length = 1;
     positions = [const Offset(80, 100)];
-    foodPosition = generateRandomFoodPosition();
+    foodPosition = generateRandomObjectPosition();
     changeSpeed();
 
     lowerBoundX = 0.0;
@@ -134,7 +137,17 @@ class _GameScreenState extends State<GameScreen> {
     if (positions[0] == foodPosition) {
       length++;
       score++;
-      foodPosition = generateRandomFoodPosition(); // generate new food
+      foodPosition = generateRandomObjectPosition(); // generate new food
+      if (widget.gameMode == GameMode.bomber) {
+        spawnBombs(); //spawn bombs in bomber mode
+      }
+    }
+
+    // check if the snake bites its tail
+    if (positions.sublist(1).contains(positions[0])) {
+      if (timer != null && timer!.isActive) timer?.cancel();
+      await Future.delayed(const Duration(milliseconds: 500), () => showGameOverDialog());
+      return;
     }
 
     setState(() {}); // for update purposes
@@ -152,16 +165,65 @@ class _GameScreenState extends State<GameScreen> {
     } else if (direction == Direction.down) {
       nextPosition = Offset(position.dx, position.dy + step);
     }
-    if (detectCollision(nextPosition) == true) {
-      if (timer != null && timer!.isActive) timer?.cancel();
-      await Future.delayed(
-          const Duration(milliseconds: 500), () => showGameOverDialog());
-      return position;
+
+    if (widget.gameMode == GameMode.classic || widget.gameMode == GameMode.bomber) {
+      // Classic and Bomber modes: check for collision with walls
+      if (detectCollision(nextPosition)) {
+        if (timer != null && timer!.isActive) timer?.cancel();
+        await Future.delayed(const Duration(milliseconds: 500), () => showGameOverDialog());
+        return position;
+      }
+      // Bomber mode: check for collision with bombs
+      if (widget.gameMode == GameMode.bomber && detectBombCollision(nextPosition)) {
+        if (timer != null && timer!.isActive) timer?.cancel();
+        await Future.delayed(const Duration(milliseconds: 500), () => showGameOverDialog());
+        return position;
+      }
+    } else if (widget.gameMode == GameMode.freeSnake) {
+      // Free Snake mode: wrap around edges instead of dying
+      if (nextPosition.dx >= upperBoundX) {
+        nextPosition = Offset(lowerBoundX, nextPosition.dy);
+      } else if (nextPosition.dx <= lowerBoundX) {
+        nextPosition = Offset(upperBoundX, nextPosition.dy);
+      } else if (nextPosition.dy >= upperBoundY) {
+        nextPosition = Offset(nextPosition.dx, lowerBoundY);
+      } else if (nextPosition.dy <= lowerBoundY) {
+        nextPosition = Offset(nextPosition.dx, upperBoundY);
+      }
     }
+
     return nextPosition;
   }
 
-  Offset generateRandomFoodPosition() {
+  List<Offset> bombPositions = [];
+
+  void spawnBombs() {
+    bombPositions.clear();
+    int bombCount = Random().nextInt(3) + 3; //spawning 3 to 5 bombs
+
+    for (int i = 0; i < bombCount; i++) {
+      Offset newBombPosition;
+      do {
+        newBombPosition = generateRandomObjectPosition();
+      } while (positions.contains(newBombPosition) || newBombPosition == foodPosition);
+
+      bombPositions.add(newBombPosition);
+    }
+
+    setState(() {}); // refresh UI
+  }
+
+  bool detectBombCollision(Offset position) {
+    for (var bomb in bombPositions) {
+      if (position == bomb) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+
+  Offset generateRandomObjectPosition() {
     final random = Random();
     return Offset(
       random.nextInt(700 ~/ step) * step.toDouble() + step * 2,
@@ -187,7 +249,20 @@ class _GameScreenState extends State<GameScreen> {
                   size: step,
                   color: widget.foodColor,
                 ).toWidget(),
-                ...getWall(),
+
+                // bomber mode display
+                if (widget.gameMode == GameMode.bomber)
+                  ...bombPositions.map((bombPosition) {
+                    return Piece(
+                      posX: bombPosition.dx.toDouble(),
+                      posY: bombPosition.dy.toDouble(),
+                      size: step,
+                      color: Colors.black, // Bombs are black
+                    ).toWidget();
+                  }),
+                //render wall only for classic and bomber modes
+                if (widget.gameMode != GameMode.freeSnake)
+                  ...getWall(),
               ],
             ),
           ),
@@ -200,6 +275,7 @@ class _GameScreenState extends State<GameScreen> {
       ),
     );
   }
+
 
   List<Widget> getWall() {
     final wall = <Widget>[];
@@ -316,53 +392,3 @@ class _GameScreenState extends State<GameScreen> {
   }
 }
 
-class Piece {
-  final double posX;
-  final double posY;
-  final size;
-  final Color color;
-
-  Piece({
-    required this.posX,
-    required this.posY,
-    required this.size,
-    required this.color,
-  });
-
-  Widget toWidget() {
-    return Positioned(
-      left: posX.toDouble(),
-      top: posY.toDouble(),
-      child: Container(
-        width: size.toDouble(),
-        height: size.toDouble(),
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(4),
-        ),
-      ),
-    );
-  }
-
-  static List<Widget> getPieces(
-      List<Offset> positions, int step, int length, Color snakeColor) {
-    final pieces = <Widget>[];
-
-    for (var i = 0; i < length; i++) {
-      if (i >= positions.length) {
-        continue;
-      }
-
-      pieces.add(
-        Piece(
-          posX: positions[i].dx.toDouble(),
-          posY: positions[i].dy.toDouble(),
-          size: step,
-          color: snakeColor,
-        ).toWidget(),
-      );
-    }
-
-    return pieces;
-  }
-}

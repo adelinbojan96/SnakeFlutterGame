@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import '../Tools/game_mode.dart';
 import '../Tools/game_settings.dart';
+
 class Options extends StatefulWidget {
   const Options({super.key});
 
@@ -24,6 +26,7 @@ class _OptionsState extends State<Options> {
 
   int selectedColorIndex = 0;
   int selectedFoodColorIndex = 0;
+  int selectedGameModeIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -60,15 +63,12 @@ class _OptionsState extends State<Options> {
               'Snake speed: ${((GameSettings.snakeSpeed - 1) * 100).toStringAsFixed(0)}%',
               style: const TextStyle(fontSize: 18),
             ),
-
             const SizedBox(height: 30),
-
             const Text(
               'Snake color:',
               style: TextStyle(fontSize: 20),
             ),
             const SizedBox(height: 10),
-
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: List.generate(snakeColors.length, (index) {
@@ -96,13 +96,11 @@ class _OptionsState extends State<Options> {
               }),
             ),
             const SizedBox(height: 30),
-
             const Text(
-              "Snake's food:",
+              "Food color:",
               style: TextStyle(fontSize: 20),
             ),
             const SizedBox(height: 10),
-
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: List.generate(foodColors.length, (index) {
@@ -128,6 +126,101 @@ class _OptionsState extends State<Options> {
                   ),
                 );
               }),
+            ),
+            const SizedBox(height: 30),
+            const Text(
+              'Select Game Mode:',
+              style: TextStyle(fontSize: 20),
+            ),
+            const SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      selectedGameModeIndex = 0;
+                      GameSettings.gameMode = GameMode.classic;
+                    });
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: selectedGameModeIndex == 0
+                            ? Colors.red[400]!
+                            : Colors.transparent,
+                        width: selectedGameModeIndex == 0 ? 4 : 2,
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        Image.asset(
+                          'assets/images/classic.png',
+                          width: 100,
+                          height: 100,
+                        ),
+                        const Text('Classic'),
+                      ],
+                    ),
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      selectedGameModeIndex = 1;
+                      GameSettings.gameMode = GameMode.freeSnake;
+                    });
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: selectedGameModeIndex == 1
+                            ? Colors.red[400]!
+                            : Colors.transparent,
+                        width: selectedGameModeIndex == 1 ? 4 : 2,
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        Image.asset(
+                          'assets/images/freesnake.png',
+                          width: 100,
+                          height: 100,
+                        ),
+                        const Text('Free Snake'),
+                      ],
+                    ),
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      selectedGameModeIndex = 2;
+                      GameSettings.gameMode = GameMode.bomber;
+                    });
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: selectedGameModeIndex == 2
+                            ? Colors.red[400]!
+                            : Colors.transparent,
+                        width: selectedGameModeIndex == 2 ? 4 : 2,
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        Image.asset(
+                          'assets/images/bomber.png',
+                          width: 100,
+                          height: 100,
+                        ),
+                        const Text('Bomber'),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         ),

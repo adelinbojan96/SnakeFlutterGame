@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../Game/snake_game.dart';
 import 'options.dart';
-import '../Tools/game_settings.dart';  
+import '../Tools/game_settings.dart';
+
 class MainMenu extends StatefulWidget {
   const MainMenu({super.key});
 
@@ -67,6 +68,7 @@ class _MainMenuState extends State<MainMenu> {
                                   snakeSpeed: GameSettings.snakeSpeed,
                                   snakeColor: GameSettings.snakeColor,
                                   foodColor: GameSettings.foodColor,
+                                    gameMode: GameSettings.gameMode,
                                 ),
                               ),
                             );
