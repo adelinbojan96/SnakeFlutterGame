@@ -1,20 +1,5 @@
-<<<<<<< HEAD
-# FlutterGame
-=======
-# app
+![image](https://github.com/user-attachments/assets/41e1a1c9-ab9a-458b-ab4d-94d904cb85a9)
 
-A new Flutter project.
+![image](https://github.com/user-attachments/assets/8a3f2893-af88-4d79-b04a-1ab5d3d29854)
 
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
->>>>>>> 66b8f3b (Initial commit with game setup and menu)
+![image](https://github.com/user-attachments/assets/e109473e-4656-4491-995a-8b75e7f23a0b)
