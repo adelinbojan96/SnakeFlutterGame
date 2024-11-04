@@ -26,6 +26,7 @@ class GameScreen extends StatefulWidget {
   @override
   _GameScreenState createState() => _GameScreenState();
 }
+
 class _GameScreenState extends State<GameScreen> {
   late List<Offset> positions;
   late int length;
@@ -152,7 +153,6 @@ class _GameScreenState extends State<GameScreen> {
 
     setState(() {}); // for update purposes
   }
-
   Future<Offset> getNextPosition(Offset position) async {
     Offset nextPosition = position;
 
@@ -275,7 +275,6 @@ class _GameScreenState extends State<GameScreen> {
       ),
     );
   }
-
 
   List<Widget> getWall() {
     final wall = <Widget>[];
